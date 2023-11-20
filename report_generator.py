@@ -8,7 +8,6 @@ exclude_elements = 'exclude_elements.txt'
 exclude_regex = 'exclude_regex.txt'
 column_id = 'TextId'
 column_source = '简体中文 zh-CN(4.3-dev)'
-column_target = '俄语 ru-RU'
 column_output_name = 'Issues found'
 report_html_file = 'output.html'
 
@@ -83,7 +82,7 @@ def clean_source_text(text):
     return result
 
 
-def find_in_df(df, latin, chinese):
+def find_in_df(df, latin, chinese, column_target):
     parameter_find_latin = latin
     parameter_find_chinese = chinese
     df[column_target].replace('', pd.NA, inplace=True)
@@ -131,7 +130,7 @@ def load_excel_sheets(folder, source, target, col_id, latin, chinese):
         for sheet_name in xls.sheet_names:
             # Read the specified columns from the sheet into a DataFrame
             df = pd.read_excel(xls, sheet_name=sheet_name, usecols=[source, target, col_id])
-            result_df = find_in_df(df, latin, chinese)
+            result_df = find_in_df(df, latin, chinese, target)
 
             # Rename the sheet to include the file name
             unique_sheet_name = f"{file_prefix} __________________ {sheet_name}"
@@ -201,7 +200,7 @@ def highlight_letters(string, matches):
     return result
 
 
-def save_report(dfs, html_file):
+def save_report(dfs, html_file, column_target):
     total_rows = sum(len(df) for df in dfs.values())
     html_content = f"<html><head><style>table {{ width: 100%; border-collapse: collapse; }} th, td {{ border: 1px solid black; padding: 5px; text-align: left; }}</style></head><body>\n"
     html_content += f"<h2>Total issues found: {total_rows}</h2>\n"
@@ -239,4 +238,4 @@ def save_report(dfs, html_file):
 def create_report(folder_source, col_src, col_tgt, col_id, output_file='output.html', find_latin=True,
                   find_chinese=True):
     excel_data = load_excel_sheets(folder_source, col_src, col_tgt, col_id, find_latin, find_chinese)
-    save_report(excel_data, output_file)
+    save_report(excel_data, output_file, col_tgt)

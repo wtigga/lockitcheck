@@ -10,7 +10,7 @@ from datetime import datetime, timezone, timedelta
 import webbrowser
 
 program_name = 'LockitCheck'
-program_version = '0.1a'
+program_version = '0.1b'
 program_update_latest = '2023-11-20'
 program_url = 'https://github.com/wtigga/lockitcheck'
 
@@ -50,6 +50,9 @@ def process_files():
         now = datetime.now()
         timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")  # Required for the filename
         report_save_path = os.path.join(os.getcwd(), 'report_{}.html'.format(timestamp))
+        print(source_var.get())
+        print(target_var.get())
+        print(id_var.get())
         rg.create_report(folder_source=folder_path_var.get(), col_src=source_var.get(), col_tgt=target_var.get(),
                          col_id=id_var.get(), find_latin=check_latin.get(), find_chinese=check_chinese.get(),
                          output_file=report_save_path)
