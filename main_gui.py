@@ -3,15 +3,15 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog, messagebox
 import os
-from pandas import DataFrame, concat, ExcelWriter, ExcelFile, read_excel
+from pandas import ExcelFile
 import report_generator as rg
 import threading
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 import webbrowser
 
 program_name = 'LockitCheck'
-program_version = '0.1b'
-program_update_latest = '2023-11-20'
+program_version = '0.2b'
+program_update_latest = '2023-11-21'
 program_url = 'https://github.com/wtigga/lockitcheck'
 
 
@@ -26,7 +26,6 @@ def open_html_in_browser(file_path):
 
 
 def browse_folder():
-    start_progress()
     buttons_disable()
 
     def main_logic():
@@ -35,6 +34,7 @@ def browse_folder():
         # print(folder_location)
         if folder_location:
             print("Extracting headers...")
+            start_progress()
             extract_header_names(folder_location)
         buttons_enable()
         stop_progress()
@@ -75,6 +75,7 @@ class ExcelProcessingError(Exception):
 
 
 def buttons_disable():
+    # To prevent users from clicking buttons while the program is running
     browse_folder_button.config(state=tk.DISABLED)
     combobox_id.config(state=tk.DISABLED)
     combobox_target.config(state=tk.DISABLED)
@@ -93,6 +94,7 @@ def buttons_enable():
 
 
 def extract_header_names(folder):
+    # To get the data from the Excel files and allow users to select the columns they need
     try:
         header_set = set()  # Initialize an empty set to store unique headers
 
@@ -134,7 +136,6 @@ def extract_header_names(folder):
         print("Combobox updated")
         return header_set
     except Exception as e:
-        # Handle any unexpected exceptions by raising a custom error
         sys.exit()
 
 
@@ -158,17 +159,17 @@ source_var = tk.StringVar()
 target_var = tk.StringVar()
 id_var = tk.StringVar()
 
-combobox_source = ttk.Combobox(root, textvariable=source_var, values='',
+combobox_source = ttk.Combobox(root, textvariable=source_var, values=['NO DATA'],
                                width=20,
                                state='readonly')
 combobox_source.grid(row=2, column=0, padx=10, pady=5)
 
-combobox_target = ttk.Combobox(root, textvariable=target_var, values='',
+combobox_target = ttk.Combobox(root, textvariable=target_var, values=['NO DATA'],
                                width=20,
                                state='readonly')
 combobox_target.grid(row=2, column=1, padx=10, pady=5)
 
-combobox_id = ttk.Combobox(root, textvariable=id_var, values='',
+combobox_id = ttk.Combobox(root, textvariable=id_var, values=['NO DATA'],
                            width=20,
                            state='readonly')
 combobox_id.grid(row=2, column=2, padx=10, pady=5)
@@ -178,12 +179,10 @@ check_latin = tk.BooleanVar()
 check_latin.set(True)
 check_chinese = tk.BooleanVar()
 check_chinese.set(True)
-checkbox_latin = ttk.Checkbutton(root, text="Check for Latin in Target", variable=check_latin).grid(row=3, column=0,
-                                                                                                    padx=10, pady=10)
-checkbox_chinese = ttk.Checkbutton(root, text="Check for Chinese in Target", variable=check_chinese).grid(row=3,
-                                                                                                          column=1,
-                                                                                                          padx=10,
-                                                                                                          pady=10)
+checkbox_latin = ttk.Checkbutton(root, text="Check for Latin in Target", variable=check_latin)
+checkbox_latin.grid(row=3, column=0, padx=10, pady=10)
+checkbox_chinese = ttk.Checkbutton(root, text="Check for Chinese in Target", variable=check_chinese)
+checkbox_chinese.grid(row=3, column=1, padx=10, pady=10)
 
 # Process button
 process_button = ttk.Button(root, text="Process", command=process_files)
@@ -193,15 +192,13 @@ process_button.grid(row=4, column=0, padx=10, pady=10, sticky='w')
 # Progress bar
 
 def start_progress():
-    # Set the progress bar to the 'active' style
-    progress['mode'] = 'indeterminate'
+    progress['mode'] = 'indeterminate'  # enable the neverending 'progress' animation
     progress.start(10)
 
 
 def stop_progress():
-    # Stop the progress bar and switch to 'inactive' style
     progress.stop()
-    progress['mode'] = 'determinate'
+    progress['mode'] = 'determinate'  # disable the animation
 
 
 def open_source_code(event):
@@ -213,7 +210,7 @@ progress_var = tk.IntVar(value=0)
 progress = ttk.Progressbar(root, orient='horizontal', length=300, mode='determinate')
 progress.grid(row=4, column=1, padx=10, pady=10, columnspan=2, sticky='w')
 
-manual_label = tk.Label(root, text="https://github.com/wtigga/lockitcheck", justify="left", cursor="hand2", fg="blue")
+manual_label = tk.Label(root, text="github.com/wtigga/lockitcheck", justify="left", cursor="hand2", fg="blue")
 manual_label.bind("<Button-1>", open_source_code)
 manual_label.grid(row=5, column=2, padx=10, pady=0, sticky='e')
 
