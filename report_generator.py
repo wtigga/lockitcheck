@@ -3,19 +3,14 @@ import pandas as pd
 import os
 import glob
 
-folder_path = 'input'
 exclude_elements = 'exclude_elements.txt'
 exclude_regex = 'exclude_regex.txt'
-column_id = 'TextId'
-column_source = '简体中文 zh-CN(4.3-dev)'
 column_output_name = 'Issues found'
 report_html_file = 'output.html'
 
 
 def find_excel_files(folder):
-    """
-    Returns a list of paths to Excel files (both .xlsx and .xls) in the specified folder.
-    """
+    # Returns a list of paths to Excel files (both .xlsx and .xls) in the specified folder.
     # Define the patterns for Excel file extensions
     patterns = ['*.xlsx', '*.xls']
 
@@ -41,6 +36,7 @@ def create_regex_from_list(elements):
 
 def create_regex_from_regex_list(elements):
     # Join the escaped elements with the pipe character for OR logic
+    # To create a regex from a text file that is easier to maintain outside of the code
     regex_pattern = '|'.join(elements)
 
     return regex_pattern
@@ -61,10 +57,12 @@ def read_file_to_list(file_path):
 exclusion_all = fr'{(create_regex_from_regex_list(read_file_to_list(exclude_regex)))}|{(create_regex_from_list(read_file_to_list(exclude_elements)))}'
 re_all = re.compile(exclusion_all)
 
+regex_cjk_characters = r'[\u4E00-\u9FFF\u3000-\u303F\u3400-\u4DBF]'  # to catch Chinese thing in translation
+cjk_regex = re.compile(regex_cjk_characters)
+
+latin_regex = re.compile(r'[a-zA-Z]+')
 
 def find_cjk_characters(text):
-    regex_cjk_characters = r'[\u4E00-\u9FFF\u3000-\u303F\u3400-\u4DBF]'  # to catch Chinese thing in translation
-    cjk_regex = re.compile(regex_cjk_characters)
     matches = cjk_regex.findall(text)
     return matches
 
@@ -72,7 +70,6 @@ def find_cjk_characters(text):
 def find_latin_letters(text):
     cleaned_text = clean_source_text(text)
     # Adjusted regex to match sequences of Latin letters
-    latin_regex = re.compile(r'[a-zA-Z]+')
     matches = latin_regex.findall(cleaned_text)
     return matches
 
